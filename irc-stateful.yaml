@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: irc
+  labels:
+    app: irc
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 5
+  updateStrategy:
+    type: RollingUpdate
+  serviceName: irc
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: irc
+        octopusexport: OctopusExport
+    spec:
+      volumes:
+        - name: vol
+          emptyDir:
+            medium: Memory
+      containers:
+        - name: irc
+          image: irc
+          command:
+          - sh
+          - -c
+          - "IRC_NICK=$(hostname);export IRC_NICK ; npm start"
+       #     - 'bash, IRC_NICK=$(hostname);export $IRC_NICK'
+          imagePullPolicy: "Never"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: IRC_REALNAME
+              value: github.com/hackeriet/irc-http
+            - name: IRC_PORT
+              value: '6667'
+            - name: IRC_HOST
+              value: chat.freenode.net
+            - name: IRC_CHANNEL
+              value: oslohackerspace
+            - name: DEBUG
+              value: '1'
+            - name: IRC_NICK
+              value: 'init'
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web
+                topologyKey: kubernetes.io/hostname
+

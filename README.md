@@ -2,7 +2,7 @@
 
 ## Usage
 
-This repo will install a minikube cluster with a statefulset running IRC bots. This assumes you have kubernetes env ready:
+This repo will install a statefulset running IRC bots. This assumes you have kubernetes env ready:
 
 ## Clone the repo 
 ```
